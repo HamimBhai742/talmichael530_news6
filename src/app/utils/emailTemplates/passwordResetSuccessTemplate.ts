@@ -1,15 +1,17 @@
-// import sendEmail from "./sendMailBrevo";
-
 import sendEmail from "./nodemailerTransport";
 
-export const twoFactorOtpTemplate = async (userName: string, subject: string, email: string, otp: string,) => {
-    const html = `<!DOCTYPE html>
+export const passwordResetSuccessTemplate = async (
+  userName: string,
+  subject: string,
+  email: string,
+  loginLink: string
+) => {
+  const html = `<!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login Verification Code</title>
+    <title>Password Reset Success</title>
     <style>
         body {
             margin: 0;
@@ -24,7 +26,7 @@ export const twoFactorOtpTemplate = async (userName: string, subject: string, em
             background-color: #ffffff;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .email-header {
@@ -55,33 +57,16 @@ export const twoFactorOtpTemplate = async (userName: string, subject: string, em
             margin-bottom: 16px;
         }
 
-        .warning-text {
+        .action-button {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 12px 24px;
+            background-color: #10b981;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 6px;
             font-size: 14px;
-            color: #7f8c8d;
-            margin-bottom: 24px;
-        }
-
-        .verification-section {
-            text-align: center;
-            padding: 24px 0;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            margin: 24px 0;
-        }
-
-        .verification-label {
-            font-size: 16px;
-            color: #2c3e50;
-            margin-bottom: 12px;
             font-weight: 600;
-        }
-
-        .verification-code {
-            font-size: 36px;
-            font-weight: 700;
-            color: #8b5cf6;
-            letter-spacing: 3px;
-            font-family: 'Courier New', monospace;
         }
 
         .footer {
@@ -93,22 +78,15 @@ export const twoFactorOtpTemplate = async (userName: string, subject: string, em
         }
 
         @media only screen and (max-width: 600px) {
-
             .email-header,
             .email-content,
             .footer {
                 padding-left: 20px !important;
                 padding-right: 20px !important;
             }
-
-            .verification-code {
-                font-size: 28px;
-                letter-spacing: 2px;
-            }
         }
     </style>
 </head>
-
 <body>
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
         <tr>
@@ -126,21 +104,15 @@ export const twoFactorOtpTemplate = async (userName: string, subject: string, em
                         <p class="greeting">Hello ${userName},</p>
 
                         <p class="main-text">
-                            We noticed a login attempt to your <strong>Accord Technology</strong> account.
-                            To continue, please verify your identity using the one-time code below.
+                            Your password has been successfully reset. You can now log in to your account using your new credentials.
                         </p>
 
-                        <p class="warning-text">
-                            If this wasn’t you, please ignore this email. Never share this code with anyone.
-                        </p>
+                        <a href="${loginLink}" class="action-button">
+                            Log In Now
+                        </a>
 
-                        <div class="verification-section">
-                            <p class="verification-label">Your login verification code</p>
-                            <div class="verification-code">${otp}</div>
-                        </div>
-
-                        <p class="warning-text">
-                            This code will expire in a few minutes for your security.
+                        <p class="main-text" style="margin-top: 20px;">
+                            If you did not perform this action, please contact our support team immediately to secure your account.
                         </p>
                     </div>
 
@@ -154,10 +126,7 @@ export const twoFactorOtpTemplate = async (userName: string, subject: string, em
         </tr>
     </table>
 </body>
-
 </html>`;
-    //   await sendEmail(email, subject, html);
-    await sendEmail(email, subject, html)
 
-}
-
+  await sendEmail(email, subject, html);
+};

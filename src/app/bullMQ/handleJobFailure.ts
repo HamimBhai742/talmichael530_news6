@@ -1,5 +1,5 @@
 import { otpEmailWorker } from "./workers/mailWorkers";
-import { messagePersistenceWorker } from "./workers/messagePersistenceWorkers";
+// import { messagePersistenceWorker } from "./workers/messagePersistenceWorkers";
 
 async function handleJobFailure(job: any, err: any) {
     console.error(`❌ Job ${job.id} failed:`, err);
@@ -12,7 +12,7 @@ async function handleJobFailure(job: any, err: any) {
 
 otpEmailWorker.on("failed", handleJobFailure);
 
-messagePersistenceWorker.on("failed", handleJobFailure);
+// messagePersistenceWorker.on("failed", handleJobFailure);
 
 
 

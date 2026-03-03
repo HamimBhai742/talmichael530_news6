@@ -1,8 +1,12 @@
 import z from "zod";
+import { fi } from "zod/v4/locales";
 
 export const registerUser = z.object({
   body: z.object({
-    name: z.string({
+    firstName: z.string({
+      message: "Name is required!",
+    }),
+    lastName: z.string({
       message: "Name is required!",
     }),
     email: z.email({
@@ -17,4 +21,3 @@ export const registerUser = z.object({
       }),
   }),
 });
-

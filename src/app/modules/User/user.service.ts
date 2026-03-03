@@ -9,7 +9,8 @@ import config from "../../../config";
 import { Secret } from "jsonwebtoken";
 
 interface UserPayload {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
   fcmToken?: string;
@@ -31,13 +32,15 @@ const registerUser = async (payload: UserPayload) => {
   }
 
   // 4️⃣ Generate OTP + expiry
-  const otp = generateOtp(4); // 4 digit OTP
-  const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 মিনিট
+  const otp = generateOtp(5);
+  const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
   // 5️⃣ User create (status = PENDING / inactive initially)
   const newUser = await prisma.user.create({
     data: {
-      name: payload.name,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+      name: `${payload.firstName} ${payload.lastName}`,
       email: payload.email,
       password: hashedPassword,
       fcmToken: payload.fcmToken || null,
@@ -47,13 +50,13 @@ const registerUser = async (payload: UserPayload) => {
     },
   });
 
-  otpQueueEmail.add(
+ await otpQueueEmail.add(
     "registrationOtp",
     {
       email: newUser.email,
       otpCode: otp,
-      subjet: "Your Verification OTP",
       userName: newUser.name,
+      subject: "Your Verification OTP"
     },
     {
       jobId: `${newUser?.id}-${Date.now()}`,
@@ -78,7 +81,7 @@ const requestPasswordReset = async (email: string) => {
   if (!user)
     throw new AppError(httpStatus.NOT_FOUND, "No user found with this email");
 
-  const otp = generateOtp(4); // 4-digit OTP
+  const otp = generateOtp(5); // 5-digit OTP
   const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
   const tempToken = generateToken(
@@ -135,7 +138,12 @@ const verifyOtp = async (email: string, otp: string, token: string) => {
 
   // ✅ Generate new temporary token for password reset
   const newTempToken = generateToken(
-    { id: user.id, name: user.name, email: user.email, role: user.role },
+    {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
     config.jwt.access_secret as Secret,
     "5m",
   );
@@ -195,7 +203,7 @@ const resetPassword = async (
   await otpQueueEmail.add(
     "passwordChangedConfirmation",
     {
-      userName: user.name,
+      userName: user.lastName,
       email: user.email,
       subject: "Password Changed Successfully",
       secureLink: `${config.client_url}/secure-account`,
