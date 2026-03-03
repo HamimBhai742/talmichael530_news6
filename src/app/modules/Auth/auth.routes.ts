@@ -11,6 +11,7 @@ router.post(
 );
 
 router.post('/google-login', AuthControllers.googleLogin);
+router.post('/facebook-login', AuthControllers.facebookLogin);
 router.post('/two-factor-verify-otp', AuthControllers.verifyOtp);
 router.post('/two-factor-verify-otp/resend', AuthControllers.resendTwoFactorOTP);
 

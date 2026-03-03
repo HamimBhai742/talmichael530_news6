@@ -35,7 +35,7 @@ const loginUserFromDB = async (payload: LoginPayload) => {
   }
   // ✅ If twoFactor enabled → Send OTP via Email class
   if (userData.twoFactor) {
-    const otp = generateOtp(4); // 4 digit OTP
+    const otp = generateOtp(5); // 5 digit OTP
     const expiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
     await prisma.user.update({
@@ -202,6 +202,52 @@ const googleLogin = async (payload: { email: string; name?: string; fcmToken?: s
   return { user, token };
 };
 
+const facebookLogin = async (payload: { email: string; name?: string; fcmToken?: string, image: string }) => {
+  const { email, name, fcmToken, image } = payload;
+
+  if (!email) throw new AppError(httpStatus.BAD_REQUEST, 'Email is required for Google login');
+
+  let user = await prisma.user.findUnique({ where: { email } });
+
+  if (user) {
+    // password যদি null হয় → Google login/ signup allow
+    if (user.password) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        'You have registered with email/password. Please login manually.'
+      );
+    }
+
+    // ফ্রন্টএন্ড থেকে FCM token update
+    if (fcmToken) {
+      await prisma.user.update({
+        where: { email },
+        data: { fcmToken },
+      });
+    }
+  } else {
+    // নতুন user create
+    user = await prisma.user.create({
+      data: {
+        email,
+        name: name || 'Google User',
+        password: null,
+        fcmToken: fcmToken || null,
+        image
+      },
+    });
+  }
+
+  const token = generateToken(
+    { id: user.id, email: user.email, name: user.name, role: user.role },
+    config.jwt.access_secret as Secret,
+    '7d'
+  );
+
+  return { user, token };
+};
+
+
 const resendTwoFactorOTP = async (email: string) => {
   const user = await prisma.user.findFirst({ where: { email } });
   if (!user) {
@@ -210,7 +256,7 @@ const resendTwoFactorOTP = async (email: string) => {
   if (!user.twoFactor) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Two-factor authentication is not enabled');
   }
-  const otp = generateOtp(4);
+  const otp = generateOtp(5);
   const expiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
   await prisma.user.update({
@@ -299,4 +345,4 @@ const resendTwoFactorOTP = async (email: string) => {
 //   };
 // };
 
-export const AuthServices = { loginUserFromDB, verifyTwoFactorOTP, googleLogin, resendTwoFactorOTP };
+export const AuthServices = { loginUserFromDB, verifyTwoFactorOTP, googleLogin, resendTwoFactorOTP,facebookLogin };
