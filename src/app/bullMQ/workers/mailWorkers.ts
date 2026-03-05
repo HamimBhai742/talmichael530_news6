@@ -29,7 +29,6 @@ export const otpEmailWorker = new Worker(
       // handle verify
       case "registrationOtp": {
         const { userName, email, otpCode, subject } = job.data;
-        console.log(userName);
         await registrationOtpTemplate(userName, subject, email, otpCode);
         return "Otp end job completed";
       }

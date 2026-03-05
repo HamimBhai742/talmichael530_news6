@@ -20,18 +20,18 @@ enum Gender {
 }
 
 model User {
-  id                            String       @id @default(auto()) @map("_id") @db.ObjectId
-  email                         String       @unique
+  id                            String              @id @default(auto()) @map("_id") @db.ObjectId
+  email                         String              @unique
   firstName                     String?
   lastName                      String?
   name                          String
   password                      String?
-  role                          UserRoleEnum @default(USER)
-  status                        UserStatus   @default(ACTIVE)
+  role                          UserRoleEnum        @default(USER)
+  status                        UserStatus          @default(ACTIVE)
   image                         String?
   otp                           String?
   otpExpiry                     DateTime?
-  notification                  Boolean      @default(true)
+  notification                  Boolean             @default(true)
   fcmToken                      String?
   birthday                      String?
   age                           Int?
@@ -42,25 +42,57 @@ model User {
   parentEmail                   String?
   parentOTP                     String?
   parentOTPExpiry               DateTime?
-  isParentEmailVerified         Boolean      @default(true)
+  isParentEmailVerified         Boolean             @default(true)
   address                       Json?
   skill                         String?
   forgetPasswordToken           String?
   forgetPasswordTokenExpires    DateTime?
   goal                          String?
   focus                         String?
-  isEmailVerified               Boolean      @default(true)
+  isEmailVerified               Boolean             @default(true)
   emailVerificationToken        String?
   emailVerificationTokenExpires DateTime?
   language                      String?
-  gender                        Gender       @default(MALE)
-  twoFactor                     Boolean?     @default(false)
+  gender                        Gender              @default(MALE)
+  twoFactor                     Boolean?            @default(false)
   twoFactorOTP                  String?
   twoFactorOTPExpires           DateTime?
-  createdAt                     DateTime     @default(now())
-  updatedAt                     DateTime     @updatedAt
+  notificationFrequency         NotificationFreq    @default(REAL_TIME)
+  notificationTypes             NotificationType[]
+  preferredLanguage             Language            @default(HEBREW)
+  ContentPreferences            ContentPreference[]
+  createdAt                     DateTime            @default(now())
+  updatedAt                     DateTime            @updatedAt
 
   @@map("users")
+}
+
+enum ContentPreference {
+  POLITICS
+  ECONOMY
+  SECURITY
+  INTERNATIONAL
+  SOCIETY
+  CULTURE
+}
+
+enum NotificationFreq {
+  REAL_TIME
+  DAILY
+  WEEKLY
+}
+
+enum NotificationType {
+  BREAKING_NEWS
+  KNESSET_UPDATES
+  COALITION_CHANGES
+  NEW_BILLS
+}
+
+enum Language {
+  ENGLISH
+  HEBREW
+  ARABIC
 }
 
 enum UserStatus {

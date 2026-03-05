@@ -31,8 +31,8 @@ router.post(
 
 // user update
 router.put(
-  "/",
-  checkAuth(UserRoleEnum.USER, UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN),
+  "/update",
+  checkAuth(UserRoleEnum.USER, UserRoleEnum.ADMIN),
   UserControllers.updateUser,
 );
 
@@ -56,6 +56,12 @@ router.put(
   "/twoFactor/authentication",
   checkAuth(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN, UserRoleEnum.USER),
   UserControllers.updateTwoFactorAuthentication,
+);
+
+router.delete(
+  "/delete/:id",
+  checkAuth(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN),
+  UserControllers.deleteUser,
 );
 
 export const UserRouters = router;

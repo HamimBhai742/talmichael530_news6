@@ -17,4 +17,5 @@ export default {
     pass: process.env.SMTP_PASS as string,
     service: process.env.SMTP_SERVICE as string,
   },
+  bcrypt_salt: Number(process.env.BCRYPT_SALT),
 };

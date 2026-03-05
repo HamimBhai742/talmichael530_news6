@@ -66,16 +66,18 @@ const updateUser = catchAsync(
 );
 
 //  get profile data
-const getProfile = catchAsync(async (req: Request & { user?: any }, res: Response) => {
-  const { userId } = req.user;
-  const result = await UserServices.getProfile(userId);
+const getProfile = catchAsync(
+  async (req: Request & { user?: any }, res: Response) => {
+    const { userId } = req.user;
+    const result = await UserServices.getProfile(userId);
 
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    message: "get my profile successfully",
-    data: result,
-  });
-});
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      message: "get my profile successfully",
+      data: result,
+    });
+  },
+);
 
 //  get profile data
 const getAllUsers = catchAsync(async (req, res) => {
@@ -99,6 +101,20 @@ const getSingleUser = catchAsync(async (req, res) => {
   });
 });
 
+//delete user
+const deleteUser = catchAsync(
+  async (req: Request & { user?: any }, res: Response) => {
+    const { userId } = req.user;
+    await UserServices.deleteUser(userId);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      message: "Account deleted successfully.",
+      data: null,
+    });
+  },
+);
+
 //  get User Notification
 // const getUserNotification = catchAsync(async (req: Request & { user?: any }, res: Response) => {
 //   const { userId } = req.user;
@@ -111,21 +127,23 @@ const getSingleUser = catchAsync(async (req, res) => {
 //   });
 // });
 
+// update TwoFactor Authentication
+const updateTwoFactorAuthentication = catchAsync(
+  async (req: Request & { user?: any }, res: Response) => {
+    const { userId } = req.user;
 
-const updateTwoFactorAuthentication = catchAsync(async (req: Request & { user?: any }, res: Response) => {
-  const { userId } = req.user;
+    const result = await UserServices.updateTwoFactorAuthentication(
+      userId,
+      req.body.data,
+    );
 
-  const result = await UserServices.updateTwoFactorAuthentication(
-    userId,
-    req.body.data,
-  );
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    message: "Update TwoFactor Authentication  successfully",
-    data: result,
-  });
-});
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      message: "Update TwoFactor Authentication  successfully",
+      data: result,
+    });
+  },
+);
 
 export const UserControllers = {
   requestPasswordReset,
@@ -137,4 +155,5 @@ export const UserControllers = {
   getAllUsers,
   getSingleUser,
   updateTwoFactorAuthentication,
+  deleteUser
 };

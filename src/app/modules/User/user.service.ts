@@ -18,7 +18,10 @@ interface UserPayload {
 
 const registerUser = async (payload: UserPayload) => {
   const plainPassword = payload.password;
-  const hashedPassword: string = await bcrypt.hash(plainPassword, 12);
+  const hashedPassword: string = await bcrypt.hash(
+    plainPassword,
+    config.bcrypt_salt,
+  );
 
   // 3️⃣ Duplicate check
   // TODO  check in cash memory
@@ -33,7 +36,7 @@ const registerUser = async (payload: UserPayload) => {
 
   // 4️⃣ Generate OTP + expiry
   const otp = generateOtp(5);
-  const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+  const expiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
   // 5️⃣ User create (status = PENDING / inactive initially)
   const newUser = await prisma.user.create({
@@ -50,13 +53,13 @@ const registerUser = async (payload: UserPayload) => {
     },
   });
 
- await otpQueueEmail.add(
+  await otpQueueEmail.add(
     "registrationOtp",
     {
       email: newUser.email,
       otpCode: otp,
       userName: newUser.name,
-      subject: "Your Verification OTP"
+      subject: "Your Verification OTP",
     },
     {
       jobId: `${newUser?.id}-${Date.now()}`,
@@ -229,6 +232,10 @@ const getProfile = async (id: string) => {
       email: true,
       address: true,
       image: true,
+      notificationTypes: true,
+      notificationFrequency: true,
+      preferredLanguage: true,
+      ContentPreferences: true,
     },
   });
 
@@ -262,6 +269,7 @@ const getSingleUser = async (id: string) => {
       email: true,
       address: true,
       image: true,
+      notificationTypes: true,
     },
   });
 
@@ -269,14 +277,24 @@ const getSingleUser = async (id: string) => {
 };
 
 const updateUser = async (id: string, payload: any) => {
+  console.log(payload);
+  if (payload.password) {
+    const hashedPassword = await bcrypt.hash(
+      payload.password,
+      config.bcrypt_salt,
+    );
+    payload.password = hashedPassword;
+  }
   const result = await prisma.user.update({
     where: { id },
-    data: {
-      ...payload,
-    },
+    data: payload,
   });
 
   return { id: result.id };
+};
+
+const deleteUser = async (id: string) => {
+  await prisma.user.delete({ where: { id } });
 };
 
 // const getUserNotification = async (id: string) => {
@@ -309,4 +327,5 @@ export const UserServices = {
   getSingleUser,
   // getUserNotification,
   updateTwoFactorAuthentication,
+  deleteUser,
 };
